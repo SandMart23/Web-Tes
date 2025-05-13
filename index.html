@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ujian Online - Manajemen Perkantoran</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --info: #560bad;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        
+        /* Start Exam Screen */
+        .start-screen {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .start-screen h2 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .start-screen p {
+            margin-bottom: 20px;
+            color: #555;
+            font-size: 0.95rem;
+        }
+        
+        .exam-info {
+            background-color: var(--light);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        
+        .exam-info ul {
+            list-style-type: none;
+            padding-left: 5px;
+        }
+        
+        .exam-info li {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: flex-start;
+            font-size: 0.9rem;
+        }
+        
+        .exam-info li::before {
+            content: "•";
+            color: var(--primary);
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-right: 8px;
+        }
+        
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            display: none;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            animation: pulse 8s infinite linear;
+        }
+        
+        @keyframes pulse {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            position: relative;
+        }
+        
+        .timer-container {
+            background-color: white;
+            color: var(--dark);
+            padding: 8px 12px;
+            border-radius: 50px;
+            display: inline-block;
+            margin-top: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+            font-size: 0.9rem;
+        }
+        
+        .timer {
+            font-size: 1rem;
+            color: var(--danger);
+        }
+        
+        /* Finish Button */
+        .finish-btn-container {
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            text-align: right;
+            margin-bottom: 10px;
+            display: none;
+        }
+        
+        .btn-finish-exam {
+            background-color: var(--danger);
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            font-size: 0.9rem;
+        }
+        
+        .btn-finish-exam:hover {
+            background-color: #d3166d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Exam Container */
+        .exam-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            display: none;
+        }
+        
+        .question-number {
+            background-color: var(--primary);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            font-weight: bold;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            font-size: 0.9rem;
+        }
+        
+        .question-text {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+        
+        .option {
+            background-color: var(--light);
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+        }
+        
+        .option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-color: var(--accent);
+        }
+        
+        .option.selected {
+            background-color: var(--accent);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .option-letter {
+            background-color: white;
+            color: var(--dark);
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-weight: bold;
+            flex-shrink: 0;
+            font-size: 0.8rem;
+        }
+        
+        .selected .option-letter {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .option-text {
+            font-size: 0.95rem;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            font-size: 0.9rem;
+            flex: 1;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-secondary {
+            background-color: var(--light);
+            color: var(--dark);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e9ecef;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-finish {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .btn-finish:hover {
+            background-color: #3aa8d1;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-start {
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 30px;
+            font-size: 1rem;
+            margin-top: 15px;
+        }
+        
+        .btn-start:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:disabled {
+            background-color: #e9ecef;
+            color: #adb5bd;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* Progress */
+        .progress-container {
+            margin-bottom: 15px;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            text-align: right;
+            font-size: 0.8rem;
+            color: var(--dark);
+            margin-top: 3px;
+        }
+        
+        /* Question Indicator */
+        .question-indicator {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 20px;
+            justify-content: center;
+            max-height: 120px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+        
+        .indicator-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        
+        .indicator-dot.answered {
+            background-color: var(--success);
+        }
+        
+        .indicator-dot.current {
+            transform: scale(1.3);
+            background-color: var(--primary);
+            box-shadow: 0 0 0 2px white, 0 0 0 3px var(--primary);
+        }
+        
+        /* Result Container */
+        .result-container {
+            text-align: center;
+            padding: 30px 20px;
+            display: none;
+        }
+        
+        .result-icon {
+            font-size: 4rem;
+            color: var(--success);
+            margin-bottom: 15px;
+            animation: bounce 1s infinite alternate;
+        }
+        
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+        
+        .result-score {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .result-message {
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        
+        /* Review Section */
+        .review-section {
+            margin-top: 30px;
+            text-align: left;
+            display: none;
+        }
+        
+        .review-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .review-item {
+            background-color: var(--light);
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+        
+        .review-question {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+        
+        .review-answer {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .review-answer.correct {
+            color: var(--success);
+        }
+        
+        .review-answer.incorrect {
+            color: var(--danger);
+        }
+        
+        .review-answer.unanswered {
+            color: var(--warning);
+        }
+        
+        .review-explanation {
+            background-color: white;
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 8px;
+            border-left: 3px solid var(--accent);
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        
+        /* Restart Button */
+        .btn-restart {
+            background-color: var(--warning);
+            color: white;
+            margin-top: 20px;
+        }
+        
+        .btn-restart:hover {
+            background-color: #e07e0c;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+        
+        /* Animation for question transition */
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Media Queries for Mobile */
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .start-screen {
+                padding: 20px 15px;
+                margin: 15px 0;
+            }
+            
+            .start-screen h2 {
+                font-size: 1.3rem;
+            }
+            
+            .exam-info li {
+                font-size: 0.85rem;
+            }
+            
+            header {
+                padding: 12px;
+            }
+            
+            h1 {
+                font-size: 1.3rem;
+            }
+            
+            .exam-container {
+                padding: 15px;
+            }
+            
+            .question-text {
+                font-size: 1rem;
+                margin-bottom: 15px;
+            }
+            
+            .option {
+                padding: 10px;
+            }
+            
+            .option-text {
+                font-size: 0.9rem;
+            }
+            
+            .navigation {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .result-container {
+                padding: 20px 15px;
+            }
+            
+            .result-score {
+                font-size: 2rem;
+            }
+            
+            .result-message {
+                font-size: 1rem;
+            }
+            
+            .review-title {
+                font-size: 1.2rem;
+            }
+            
+            .review-question {
+                font-size: 0.9rem;
+            }
+            
+            .review-answer {
+                font-size: 0.85rem;
+            }
+            
+            .review-explanation {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Start Screen -->
+        <div class="start-screen" id="start-screen">
+            <h2>Ujian Manajemen Perkantoran</h2>
+            <p>Silahkan baca petunjuk berikut sebelum memulai ujian:</p>
+            
+            <div class="exam-info">
+                <ul>
+                    <li>Ujian terdiri dari 50 soal pilihan ganda</li>
+                    <li>Waktu yang disediakan: 115 menit</li>
+                    <li>Setiap jawaban benar mendapat 5 poin</li>
+                    <li>Jawaban salah mendapat 1 poin</li>
+                    <li>Tidak menjawab mendapat 0 poin</li>
+                    <li>Anda bisa menyelesaikan ujian setelah menjawab minimal 10 soal</li>
+                </ul>
+            </div>
+            
+            <button class="btn btn-start" id="start-btn">Mulai Ujian</button>
+        </div>
+        
+        <!-- Exam Header -->
+        <header id="exam-header">
+            <h1>Ujian Manajemen Perkantoran</h1>
+            <p>Pilih jawaban yang paling tepat dari pilihan yang tersedia</p>
+            <div class="timer-container">
+                Waktu tersisa: <span class="timer" id="timer">01:55:00</span>
+            </div>
+        </header>
+        
+        <!-- Finish Button -->
+        <div class="finish-btn-container" id="finish-btn-container">
+            <button class="btn-finish-exam" id="finish-exam-btn">Selesaikan Ujian</button>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+            <div class="progress-text" id="progress-text">0/50</div>
+        </div>
+        
+        <!-- Question Indicator -->
+        <div class="question-indicator" id="question-indicator"></div>
+        
+        <!-- Exam Container -->
+        <div class="exam-container fade-in" id="exam-container">
+            <div class="question-number" id="question-number">1</div>
+            <div class="question-text" id="question-text">Memuat pertanyaan...</div>
+            <div class="options-container" id="options-container">
+                <!-- Options will be inserted here by JavaScript -->
+            </div>
+            
+            <div class="navigation">
+                <button class="btn btn-secondary" id="prev-btn" disabled>
+                    Sebelumnya
+                </button>
+                <button class="btn btn-primary" id="next-btn">
+                    Berikutnya
+                </button>
+            </div>
+        </div>
+        
+        <!-- Result Container -->
+        <div class="result-container" id="result-container">
+            <div class="result-icon">📝</div>
+            <div class="result-score" id="result-score">0/250</div>
+            <div class="result-message" id="result-message"></div>
+            <button class="btn btn-primary" id="review-btn">Lihat Jawaban</button>
+            <button class="btn btn-restart" id="restart-btn">Mulai Ulang Ujian</button>
+            
+            <!-- Review Section -->
+            <div class="review-section" id="review-section">
+                <div class="review-title">Review Jawaban</div>
+                <div id="review-questions-container">
+                    <!-- Review items will be inserted here by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Questions data from JSON
+        const allQuestions = [
+  {
+    "nomor": 1,
+    "pertanyaan": "Apa yang dimaksud dengan manajemen perkantoran?",
+    "pilihan": {
+      "A": "Pengelolaan anggaran perusahaan",
+      "B": "Pengaturan dokumen dan arsip",
+      "C": "Perencanaan dan pengorganisasian tugas administratif",
+      "D": "Pembuatan laporan keuangan",
+      "E": "Penanganan keluhan pelanggan"
+    },
+    "jawaban": "C",
+    "penjelasan": "Manajemen perkantoran mencakup perencanaan, pengorganisasian, dan pengelolaan berbagai tugas administratif untuk mendukung kelancaran operasional kantor."
+  },
+  {
+    "nomor": 2,
+    "pertanyaan": "Dalam perencanaan administrasi, langkah pertama yang harus dilakukan adalah?",
+    "pilihan": {
+      "A": "Menyusun jadwal rapat",
+      "B": "Mengidentifikasi kebutuhan sumber daya",
+      "C": "Menyusun anggaran tahunan",
+      "D": "Menganalisis hasil kerja",
+      "E": "Mengatur inventaris kantor"
+    },
+    "jawaban": "B",
+    "penjelasan": "Langkah pertama dalam perencanaan adalah mengidentifikasi kebutuhan sumber daya yang diperlukan untuk melaksanakan tugas-tugas administratif secara efektif."
+  },
+  {
+    "nomor": 3,
+    "pertanyaan": "Pengawasan dalam manajemen perkantoran bertujuan untuk?",
+    "pilihan": {
+      "A": "Meningkatkan profitabilitas perusahaan",
+      "B": "Memastikan standar kualitas pekerjaan terpenuhi",
+      "C": "Mengurangi biaya operasional",
+      "D": "Mempercepat proses pengadaan barang",
+      "E": "Meningkatkan kepuasan pelanggan"
+    },
+    "jawaban": "B",
+    "penjelasan": "Pengawasan bertujuan untuk memastikan bahwa pekerjaan dilakukan sesuai dengan standar kualitas yang telah ditetapkan."
+  },
+  {
+    "nomor": 4,
+    "pertanyaan": "Untuk meningkatkan efisiensi kerja di kantor, salah satu tindakan yang dapat diambil adalah…",
+    "pilihan": {
+      "A": "Menambah jumlah karyawan",
+      "B": "Mengurangi waktu istirahat",
+      "C": "Mengimplementasikan teknologi baru",
+      "D": "Mengubah struktur organisasi",
+      "E": "Mengurangi anggaran operasional"
+    },
+    "jawaban": "C",
+    "penjelasan": "Teknologi baru dapat membantu meningkatkan efisiensi kerja dengan mengotomatisasi proses dan mempercepat pekerjaan."
+  },
+  {
+    "nomor": 5,
+    "pertanyaan": "Apa yang merupakan elemen penting dalam manajemen arsip perkantoran?",
+    "pilihan": {
+      "A": "Pengelolaan kas kecil",
+      "B": "Pengaturan jadwal rapat",
+      "C": "Sistem pengarsipan yang terstruktur",
+      "D": "Pengelolaan pengadaan barang",
+      "E": "Penanganan keluhan pelanggan"
+    },
+    "jawaban": "C",
+    "penjelasan": "Sistem pengarsipan yang terstruktur adalah elemen penting dalam manajemen arsip untuk memastikan dokumen mudah ditemukan dan aman."
+  },
+  {
+    "nomor": 6,
+    "pertanyaan": "Dalam pengorganisasian kantor, penugasan tugas harus dilakukan berdasarkan?",
+    "pilihan": {
+      "A": "Kesukaan pribadi",
+      "B": "Ketersediaan waktu karyawan",
+      "C": "Kualifikasi dan kemampuan masing-masing karyawan",
+      "D": "Jumlah gaji yang diterima",
+      "E": "Lokasi geografis karyawan"
+    },
+    "jawaban": "C",
+    "penjelasan": "Tugas harus ditugaskan berdasarkan kualifikasi dan kemampuan karyawan untuk memastikan hasil kerja yang optimal."
+  },
+  {
+    "nomor": 7,
+    "pertanyaan": "Salah satu metode pengendalian untuk memastikan proyek administratif berjalan sesuai rencana adalah…",
+    "pilihan": {
+      "A": "Menyusun anggaran biaya",
+      "B": "Mengadakan rapat evaluasi berkala",
+      "C": "Mengurangi jam kerja karyawan",
+      "D": "Menambah fasilitas kantor",
+      "E": "Menyederhanakan prosedur pengadaan"
+    },
+    "jawaban": "B",
+    "penjelasan": "Rapat evaluasi berkala membantu dalam mengawasi kemajuan proyek dan melakukan penyesuaian jika diperlukan."
+  },
+  {
+    "nomor": 8,
+    "pertanyaan": "Untuk menilai efektivitas kerja, manajer perkantoran perlu?",
+    "pilihan": {
+      "A": "Menghitung jumlah jam lembur",
+      "B": "Menganalisis hasil kerja terhadap tujuan yang telah ditetapkan",
+      "C": "Mengurangi biaya pelatihan",
+      "D": "Meningkatkan anggaran pemasaran",
+      "E": "Mengubah struktur organisasi"
+    },
+    "jawaban": "B",
+    "penjelasan": "Menilai efektivitas kerja melibatkan membandingkan hasil kerja dengan tujuan yang telah ditetapkan untuk memastikan pencapaian hasil yang diinginkan."
+  },
+  {
+    "nomor": 9,
+    "pertanyaan": "Apa manfaat utama dari pengelolaan inventaris kantor yang efektif?",
+    "pilihan": {
+      "A": "Mengurangi beban kerja karyawan",
+      "B": "Menghindari kekurangan atau kelebihan persediaan",
+      "C": "Meningkatkan kepuasan pelanggan",
+      "D": "Mengurangi biaya pelatihan",
+      "E": "Mempercepat proses penggajian"
+    },
+    "jawaban": "B",
+    "penjelasan": "Pengelolaan inventaris yang efektif memastikan bahwa persediaan selalu memadai tanpa ada kekurangan atau kelebihan yang dapat mempengaruhi operasional."
+  },
+  {
+    "nomor": 10,
+    "pertanyaan": "Untuk melakukan pengendalian kualitas dalam pekerjaan administrasi, langkah pertama yang perlu dilakukan adalah…",
+    "pilihan": {
+      "A": "Membuat laporan akhir",
+      "B": "Menetapkan standar kualitas",
+      "C": "Melakukan pelatihan karyawan",
+      "D": "Mengatur ulang jadwal kerja",
+      "E": "Menyusun anggaran baru"
+    },
+    "jawaban": "B",
+    "penjelasan": "Menetapkan standar kualitas adalah langkah awal untuk memastikan bahwa pekerjaan memenuhi kriteria yang diharapkan dan memberikan dasar untuk pengendalian kualitas."
+  },
+  {
+    "nomor": 11,
+    "pertanyaan": "Apa yang dimaksud dengan Administrasi Umum?",
+    "pilihan": {
+      "A": "Pengelolaan keuangan perusahaan",
+      "B": "Pengelolaan dokumen dan surat-menyurat",
+      "C": "Pengorganisasian dan koordinasi aktivitas kantor",
+      "D": "Pembuatan laporan keuangan",
+      "E": "Pengelolaan SDM"
+    },
+    "jawaban": "C",
+    "penjelasan": "Administrasi Umum mencakup pengorganisasian, koordinasi, dan pengelolaan berbagai aktivitas di lingkungan kantor untuk memastikan operasional berjalan dengan efisien."
+  },
+  {
+    "nomor": 12,
+    "pertanyaan": "Dalam pengelolaan surat-menyurat, dokumen apa yang biasanya digunakan untuk mengkonfirmasi penerimaan surat resmi?",
+    "pilihan": {
+      "A": "Nota Dinas",
+      "B": "Laporan",
+      "C": "Surat Balasan",
+      "D": "Memo",
+      "E": "Faktur"
+    },
+    "jawaban": "C",
+    "penjelasan": "Surat Balasan digunakan untuk mengkonfirmasi penerimaan surat resmi dan memberikan tanggapan atau informasi tambahan sesuai kebutuhan."
+  },
+  {
+    "nomor": 13,
+    "pertanyaan": "Apa tujuan utama dari sistem pengarsipan dalam Pengadministrasi perkantoran?",
+    "pilihan": {
+      "A": "Mengurangi biaya operasional",
+      "B": "Menyimpan dokumen secara aman dan teratur",
+      "C": "Meningkatkan produktivitas karyawan",
+      "D": "Mengurangi jumlah dokumen",
+      "E": "Meningkatkan kepuasan pelanggan"
+    },
+    "jawaban": "B",
+    "penjelasan": "Sistem pengarsipan bertujuan untuk memastikan bahwa dokumen disimpan dengan cara yang aman dan teratur, memudahkan pencarian dan pengambilan dokumen ketika diperlukan."
+  },
+  {
+    "nomor": 14,
+    "pertanyaan": "Manakah dari berikut ini yang termasuk dalam sistem informasi manajemen?",
+    "pilihan": {
+      "A": "Penyusunan anggaran tahunan",
+      "B": "Pengelolaan data karyawan",
+      "C": "Penjadwalan rapat",
+      "D": "Pengelolaan dokumen fisik",
+      "E": "Pengelolaan pembelian"
+    },
+    "jawaban": "B",
+    "penjelasan": "Sistem informasi manajemen melibatkan pengelolaan data dan informasi yang mendukung pengambilan keputusan, seperti pengelolaan data karyawan."
+  },
+  {
+    "nomor": 15,
+    "pertanyaan": "Dokumen apa yang biasanya berfungsi untuk memberikan informasi internal di antara staf?",
+    "pilihan": {
+      "A": "Surat Resmi",
+      "B": "Memo",
+      "C": "Laporan Tahunan",
+      "D": "Nota Dinas",
+      "E": "Faksimili"
+    },
+    "jawaban": "B",
+    "penjelasan": "Memo adalah dokumen internal yang digunakan untuk menyampaikan informasi, pengumuman, atau instruksi kepada staf di dalam perusahaan."
+  },
+  {
+    "nomor": 16,
+    "pertanyaan": "Apa yang dimaksud dengan digitalisasi arsip?",
+    "pilihan": {
+      "A": "Mengubah dokumen fisik menjadi format digital",
+      "B": "Menghancurkan dokumen lama",
+      "C": "Menyimpan dokumen dalam folder fisik",
+      "D": "Mengorganisir dokumen berdasarkan tanggal",
+      "E": "Menggandakan dokumen untuk keamanan"
+    },
+    "jawaban": "A",
+    "penjelasan": "Digitalisasi arsip adalah proses mengubah dokumen fisik menjadi format digital untuk memudahkan penyimpanan, pencarian, dan akses."
+  },
+  {
+    "nomor": 17,
+    "pertanyaan": "Dalam sistem informasi manajemen, apa fungsi dari database?",
+    "pilihan": {
+      "A": "Menyimpan informasi secara terpusat",
+      "B": "Mengirimkan email",
+      "C": "Mengatur jadwal rapat",
+      "D": "Mengelola inventaris",
+      "E": "Menyusun laporan keuangan"
+    },
+    "jawaban": "A",
+    "penjelasan": "Database dalam sistem informasi manajemen digunakan untuk menyimpan informasi secara terpusat, memudahkan akses, pengelolaan, dan analisis data."
+  },
+  {
+    "nomor": 18,
+    "pertanyaan": "Apa yang harus dilakukan jika ditemukan dokumen yang hilang dari arsip fisik?",
+    "pilihan": {
+      "A": "Mengabaikan dan melanjutkan pekerjaan",
+      "B": "Menghubungi pihak terkait untuk mencari dokumen",
+      "C": "Mengganti dokumen dengan yang baru",
+      "D": "Menyimpan salinan dokumen yang sama",
+      "E": "Menghapus referensi dokumen dari sistem"
+    },
+    "jawaban": "B",
+    "penjelasan": "Jika dokumen hilang, langkah pertama adalah menghubungi pihak terkait untuk mencari dan mengidentifikasi dokumen yang hilang sebelum mengambil tindakan lebih lanjut."
+  },
+  {
+    "nomor": 19,
+    "pertanyaan": "Apa yang dimaksud dengan pengelolaan surat masuk?",
+    "pilihan": {
+      "A": "Membalas surat yang diterima",
+      "B": "Menyimpan surat dalam arsip",
+      "C": "Menyortir dan mendistribusikan surat ke departemen yang relevan",
+      "D": "Menghapus surat lama",
+      "E": "Mengatur jadwal pengiriman surat"
+    },
+    "jawaban": "C",
+    "penjelasan": "Pengelolaan surat masuk melibatkan menyortir, mendistribusikan surat yang diterima ke departemen atau individu yang relevan, dan memastikan tindak lanjut yang tepat."
+  },
+  {
+    "nomor": 20,
+    "pertanyaan": "Apa keuntungan utama menggunakan sistem informasi manajemen berbasis komputer?",
+    "pilihan": {
+      "A": "Mengurangi jumlah karyawan",
+      "B": "Meningkatkan efisiensi dan akurasi data",
+      "C": "Mengurangi biaya perangkat keras",
+      "D": "Memudahkan pengelolaan keuangan",
+      "E": "Mengurangi jumlah dokumen"
+    },
+    "jawaban": "B",
+    "penjelasan": "Sistem informasi manajemen berbasis komputer meningkatkan efisiensi dan akurasi dalam pengelolaan data, memudahkan akses informasi dan mendukung pengambilan keputusan yang lebih baik."
+  },
+  {
+    "nomor": 21,
+    "pertanyaan": "Teknologi perkantoran yang digunakan untuk mempermudah komunikasi di dalam sebuah organisasi adalah…",
+    "pilihan": {
+      "A": "Mesin fotokopi",
+      "B": "Sistem manajemen proyek",
+      "C": "Email dan perangkat komunikasi instant",
+      "D": "Printer laser",
+      "E": "Alat pemindai dokumen"
+    },
+    "jawaban": "C",
+    "penjelasan": "Email dan perangkat komunikasi instant seperti aplikasi pesan singkat mempermudah komunikasi internal dan eksternal di dalam organisasi."
+  },
+  {
+    "nomor": 22,
+    "pertanyaan": "Perangkat lunak yang digunakan untuk mengolah kata dan membuat dokumen teks adalah…",
+    "pilihan": {
+      "A": "Microsoft Excel",
+      "B": "Adobe Photoshop",
+      "C": "Microsoft Word",
+      "D": "Microsoft Access",
+      "E": "Google Chrome"
+    },
+    "jawaban": "C",
+    "penjelasan": "Microsoft Word adalah perangkat lunak pengolah kata yang digunakan untuk membuat, mengedit, dan memformat dokumen teks."
+  },
+  {
+    "nomor": 23,
+    "pertanyaan": "Untuk melindungi data sensitif di komputer, salah satu langkah keamanan yang harus diambil adalah…",
+    "pilihan": {
+      "A": "Mengganti font dokumen secara berkala",
+      "B": "Menggunakan kata sandi yang kuat dan berbeda untuk setiap akun",
+      "C": "Menyimpan data di perangkat eksternal",
+      "D": "Mengaktifkan mode gelap di aplikasi",
+      "E": "Menghapus file secara rutin"
+    },
+    "jawaban": "B",
+    "penjelasan": "Menggunakan kata sandi yang kuat dan berbeda untuk setiap akun membantu melindungi data sensitif dari akses yang tidak sah."
+  },
+  {
+    "nomor": 24,
+    "pertanyaan": "Jika komputer Anda tiba-tiba tidak bisa terhubung ke jaringan, langkah pertama yang harus dilakukan adalah…",
+    "pilihan": {
+      "A": "Mengganti kabel jaringan",
+      "B": "Menghubungi penyedia layanan internet",
+      "C": "Memeriksa koneksi kabel dan pengaturan jaringan",
+      "D": "Menginstal ulang sistem operasi",
+      "E": "Membeli perangkat keras baru"
+    },
+    "jawaban": "C",
+    "penjelasan": "Langkah pertama dalam troubleshooting masalah jaringan adalah memeriksa koneksi kabel dan pengaturan jaringan untuk memastikan semuanya berfungsi dengan baik."
+  },
+  {
+    "nomor": 25,
+    "pertanyaan": "Perangkat keras yang digunakan untuk menyimpan data secara permanen adalah…",
+    "pilihan": {
+      "A": "Monitor",
+      "B": "CPU",
+      "C": "Hard disk drive (HDD)",
+      "D": "Keyboard",
+      "E": "Mouse"
+    },
+    "jawaban": "C",
+    "penjelasan": "Hard disk drive (HDD) adalah perangkat penyimpanan permanen yang menyimpan data dan program di komputer."
+  },
+  {
+    "nomor": 26,
+    "pertanyaan": "Perangkat lunak yang digunakan untuk mengelola data dan membuat laporan berbasis tabel adalah…",
+    "pilihan": {
+      "A": "Microsoft Word",
+      "B": "Microsoft Excel",
+      "C": "Adobe Acrobat",
+      "D": "Microsoft Outlook",
+      "E": "Google Drive"
+    },
+    "jawaban": "B",
+    "penjelasan": "Microsoft Excel adalah perangkat lunak yang digunakan untuk mengelola data, membuat tabel, dan menghasilkan laporan berbasis data."
+  },
+  {
+    "nomor": 27,
+    "pertanyaan": "Teknik yang digunakan untuk mengamankan data dengan mengubahnya menjadi format yang tidak dapat dibaca tanpa kunci adalah…",
+    "pilihan": {
+      "A": "Backup data",
+      "B": "Enkripsi data",
+      "C": "Firewall",
+      "D": "Autentikasi dua faktor",
+      "E": "Penghapusan data"
+    },
+    "jawaban": "B",
+    "penjelasan": "Enkripsi data adalah proses mengubah data menjadi format yang tidak dapat dibaca tanpa kunci yang sesuai, sehingga melindungi data dari akses yang tidak sah."
+  },
+  {
+    "nomor": 28,
+    "pertanyaan": "Jika printer Anda mencetak halaman kosong, langkah pertama yang harus Anda periksa adalah…",
+    "pilihan": {
+      "A": "Apakah tinta atau toner printer cukup",
+      "B": "Apakah kabel printer terpasang dengan benar",
+      "C": "Apakah driver printer sudah diperbarui",
+      "D": "Apakah dokumen yang dicetak memiliki konten",
+      "E": "Apakah printer terhubung ke jaringan"
+    },
+    "jawaban": "A",
+    "penjelasan": "Memeriksa tingkat tinta atau toner printer adalah langkah pertama untuk mengatasi masalah pencetakan halaman kosong."
+  },
+  {
+    "nomor": 29,
+    "pertanyaan": "Untuk mengamankan akses ke sistem komputer, teknik yang sering digunakan adalah…",
+    "pilihan": {
+      "A": "Menggunakan perangkat lunak antivirus",
+      "B": "Menyembunyikan data dalam folder tersembunyi",
+      "C": "Membuat cadangan data secara rutin",
+      "D": "Mengaktifkan pembaruan otomatis",
+      "E": "Menggunakan sistem otentikasi biometrik"
+    },
+    "jawaban": "E",
+    "penjelasan": "Sistem otentikasi biometrik, seperti pemindai sidik jari, digunakan untuk meningkatkan keamanan akses ke sistem komputer."
+  },
+  {
+    "nomor": 30,
+    "pertanyaan": "Jika Anda ingin membuat presentasi untuk rapat, perangkat lunak yang paling sesuai untuk digunakan adalah…",
+    "pilihan": {
+      "A": "Microsoft Access",
+      "B": "Microsoft PowerPoint",
+      "C": "Microsoft Word",
+      "D": "Adobe Illustrator",
+      "E": "Google Sheets"
+    },
+    "jawaban": "B",
+    "penjelasan": "Microsoft PowerPoint adalah perangkat lunak yang digunakan untuk membuat presentasi visual yang efektif untuk rapat atau acara lainnya."
+  },
+  {
+    "nomor": 31,
+    "pertanyaan": "Komunikasi bisnis yang efektif dapat membantu organisasi dalam?",
+    "pilihan": {
+      "A": "Mengurangi jumlah karyawan",
+      "B": "Meningkatkan profitabilitas secara langsung",
+      "C": "Mencapai tujuan strategis dan meningkatkan hubungan internal dan eksternal",
+      "D": "Menyederhanakan struktur organisasi",
+      "E": "Mengurangi jumlah rapat"
+    },
+    "jawaban": "C",
+    "penjelasan": "Komunikasi bisnis yang efektif mendukung pencapaian tujuan strategis dan memperkuat hubungan baik antara organisasi dengan pihak internal dan eksternal."
+  },
+  {
+    "nomor": 32,
+    "pertanyaan": "Keterampilan menulis bisnis yang baik harus mencakup?",
+    "pilihan": {
+      "A": "Penggunaan jargon teknis yang kompleks",
+      "B": "Struktur yang jelas dan tata bahasa yang tepat",
+      "C": "Penggunaan frasa ambigu",
+      "D": "Penulisan tanpa perencanaan",
+      "E": "Penggunaan kalimat panjang dan rumit"
+    },
+    "jawaban": "B",
+    "penjelasan": "Menulis bisnis yang baik memerlukan struktur yang jelas dan penggunaan tata bahasa yang tepat untuk memastikan pesan tersampaikan dengan efektif."
+  },
+  {
+    "nomor": 33,
+    "pertanyaan": "Etika komunikasi dalam bisnis meliputi?",
+    "pilihan": {
+      "A": "Menghindari konflik dengan rekan kerja",
+      "B": "Menjaga kerahasiaan informasi dan menghormati privasi",
+      "C": "Menyebarkan informasi yang belum terverifikasi",
+      "D": "Mengabaikan feedback dari pelanggan",
+      "E": "Menggunakan bahasa yang tidak sopan"
+    },
+    "jawaban": "B",
+    "penjelasan": "Etika komunikasi bisnis mencakup menjaga kerahasiaan informasi dan menghormati privasi orang lain untuk membangun kepercayaan dan profesionalisme."
+  },
+  {
+    "nomor": 34,
+    "pertanyaan": "Untuk menyampaikan presentasi yang efektif, penting untuk?",
+    "pilihan": {
+      "A": "Membaca seluruh slide secara verbatim",
+      "B": "Menyediakan banyak detail tanpa struktur",
+      "C": "Memiliki pesan yang jelas dan mendukung dengan visual yang relevan",
+      "D": "Menghindari interaksi dengan audiens",
+      "E": "Menggunakan jargon teknis yang kompleks"
+    },
+    "jawaban": "C",
+    "penjelasan": "Presentasi yang efektif memerlukan pesan yang jelas serta dukungan visual yang relevan untuk mempermudah pemahaman audiens."
+  },
+  {
+    "nomor": 35,
+    "pertanyaan": "Apa yang dimaksud dengan komunikasi dua arah dalam konteks bisnis?",
+    "pilihan": {
+      "A": "Komunikasi yang hanya melibatkan manajer",
+      "B": "Komunikasi yang melibatkan pertukaran informasi antara dua pihak secara aktif",
+      "C": "Komunikasi yang hanya melibatkan email",
+      "D": "Komunikasi yang hanya bersifat satu arah dari atasan ke bawahan",
+      "E": "Komunikasi yang tidak melibatkan feedback"
+    },
+    "jawaban": "B",
+    "penjelasan": "Komunikasi dua arah melibatkan pertukaran informasi aktif antara dua pihak, memungkinkan feedback dan diskusi yang lebih produktif."
+  },
+  {
+    "nomor": 36,
+    "pertanyaan": "Saat menulis email bisnis, hal pertama yang harus dilakukan adalah…",
+    "pilihan": {
+      "A": "Menulis subjek yang jelas dan relevan",
+      "B": "Menyusun paragraf panjang",
+      "C": "Menggunakan bahasa informal",
+      "D": "Menyertakan lampiran tanpa penjelasan",
+      "E": "Mengabaikan pengaturan format"
+    },
+    "jawaban": "A",
+    "penjelasan": "Menulis subjek yang jelas dan relevan membantu penerima memahami tujuan email dan meningkatkan kemungkinan email dibaca dengan seksama."
+  },
+  {
+    "nomor": 37,
+    "pertanyaan": "Dalam komunikasi bisnis, penting untuk?",
+    "pilihan": {
+      "A": "Membagikan informasi pribadi tanpa izin",
+      "B": "Mengabaikan kode etik komunikasi",
+      "C": "Menghargai pendapat dan perasaan orang lain",
+      "D": "Menggunakan bahasa yang kasar untuk menunjukkan kekuasaan",
+      "E": "Membuat asumsi tanpa klarifikasi"
+    },
+    "jawaban": "C",
+    "penjelasan": "Menghargai pendapat dan perasaan orang lain adalah prinsip etika komunikasi yang penting untuk membangun hubungan yang sehat dan saling menghormati."
+  },
+  {
+    "nomor": 38,
+    "pertanyaan": "Dalam rapat bisnis, cara terbaik untuk memastikan semua peserta terlibat adalah…",
+    "pilihan": {
+      "A": "Menggunakan satu arah komunikasi dari pimpinan",
+      "B": "Mendorong peserta untuk mengajukan pertanyaan dan memberikan masukan",
+      "C": "Menghindari diskusi kelompok",
+      "D": "Mengabaikan agenda rapat",
+      "E": "Menyimpan informasi rapat hingga akhir"
+    },
+    "jawaban": "B",
+    "penjelasan": "Mendorong peserta untuk mengajukan pertanyaan dan memberikan masukan membantu memastikan keterlibatan dan interaksi yang efektif selama rapat."
+  },
+  {
+    "nomor": 39,
+    "pertanyaan": "Dalam komunikasi bisnis, penting untuk menyampaikan pesan dengan cara yang?",
+    "pilihan": {
+      "A": "Menggunakan bahasa yang rumit dan teknis",
+      "B": "Ambigu dan tidak jelas",
+      "C": "Singkat, jelas, dan langsung",
+      "D": "Memasukkan informasi yang tidak relevan",
+      "E": "Mengabaikan struktur"
+    },
+    "jawaban": "C",
+    "penjelasan": "Menyampaikan pesan dengan cara yang singkat, jelas, dan langsung memudahkan penerima untuk memahami informasi dengan cepat dan efektif."
+  },
+  {
+    "nomor": 40,
+    "pertanyaan": "Dalam keterampilan berbicara di depan umum, cara terbaik untuk mengatasi rasa gugup adalah…",
+    "pilihan": {
+      "A": "Mengabaikan audience dan fokus pada materi",
+      "B": "Melatih presentasi secara berulang-ulang",
+      "C": "Membaca teks dengan cepat",
+      "D": "Menghindari latihan sebelumnya",
+      "E": "Menggunakan nada suara monoton"
+    },
+    "jawaban": "B",
+    "penjelasan": "Melatih presentasi secara berulang-ulang membantu mengurangi rasa gugup dan meningkatkan kepercayaan diri saat berbicara di depan umum."
+  },
+  {
+    "nomor": 41,
+    "pertanyaan": "Apa yang dimaksud dengan layanan pelanggan?",
+    "pilihan": {
+      "A": "Proses memproduksi barang",
+      "B": "Proses memberikan dukungan dan bantuan kepada pelanggan",
+      "C": "Proses manajemen inventaris",
+      "D": "Proses pembuatan strategi pemasaran",
+      "E": "Proses pengembangan produk"
+    },
+    "jawaban": "B",
+    "penjelasan": "Layanan pelanggan adalah proses memberikan dukungan dan bantuan kepada pelanggan untuk memenuhi kebutuhan mereka dan menyelesaikan masalah yang mungkin timbul."
+  },
+  {
+    "nomor": 42,
+    "pertanyaan": "Salah satu prinsip utama pelayanan prima adalah…",
+    "pilihan": {
+      "A": "Mengabaikan keluhan pelanggan",
+      "B": "Memberikan layanan yang konsisten dan berkualitas tinggi",
+      "C": "Mengurangi waktu tanggap terhadap pelanggan",
+      "D": "Menghindari interaksi langsung dengan pelanggan",
+      "E": "Menawarkan harga terendah tanpa mempertimbangkan kualitas"
+    },
+    "jawaban": "B",
+    "penjelasan": "Prinsip pelayanan prima mencakup memberikan layanan yang konsisten dan berkualitas tinggi untuk memenuhi harapan dan kebutuhan pelanggan."
+  },
+  {
+    "nomor": 43,
+    "pertanyaan": "Langkah pertama dalam penanganan keluhan pelanggan adalah…",
+    "pilihan": {
+      "A": "Memberikan diskon sebagai kompensasi",
+      "B": "Mengabaikan keluhan jika pelanggan tidak dapat membuktikannya",
+      "C": "Mendengarkan dan memahami keluhan pelanggan",
+      "D": "Menyalahkan pelanggan atas masalah yang terjadi",
+      "E": "Menyelesaikan keluhan tanpa berkomunikasi dengan pelanggan"
+    },
+    "jawaban": "C",
+    "penjelasan": "Langkah pertama yang penting dalam penanganan keluhan adalah mendengarkan dan memahami keluhan pelanggan untuk mengetahui dengan jelas masalah yang dihadapi."
+  },
+  {
+    "nomor": 44,
+    "pertanyaan": "Faktor utama yang mempengaruhi kepuasan pelanggan adalah…",
+    "pilihan": {
+      "A": "Harga produk saja",
+      "B": "Kualitas produk dan layanan pelanggan",
+      "C": "Jumlah iklan yang ditayangkan",
+      "D": "Jumlah produk yang dijual",
+      "E": "Lokasi fisik perusahaan"
+    },
+    "jawaban": "B",
+    "penjelasan": "Kepuasan pelanggan dipengaruhi oleh kualitas produk serta layanan pelanggan yang diterima, termasuk responsif terhadap kebutuhan dan masalah pelanggan."
+  },
+  {
+    "nomor": 45,
+    "pertanyaan": "Dalam layanan pelanggan, apa yang dimaksud dengan first call resolution?",
+    "pilihan": {
+      "A": "Menyelesaikan masalah pelanggan pada panggilan pertama",
+      "B": "Mengalihkan panggilan ke departemen lain",
+      "C": "Menyelesaikan masalah dalam waktu 24 jam",
+      "D": "Mengabaikan panggilan yang tidak penting",
+      "E": "Meminta pelanggan untuk menghubungi kembali"
+    },
+    "jawaban": "A",
+    "penjelasan": "First call resolution berarti menyelesaikan masalah pelanggan pada panggilan pertama tanpa perlu melakukan follow-up atau mengalihkan ke departemen lain."
+  },
+  {
+    "nomor": 46,
+    "pertanyaan": "Untuk menjaga prinsip pelayanan prima, penting untuk?",
+    "pilihan": {
+      "A": "Mengabaikan feedback pelanggan",
+      "B": "Melakukan pelatihan rutin untuk staf",
+      "C": "Menurunkan standar layanan",
+      "D": "Mengurangi jumlah staf layanan pelanggan",
+      "E": "Menggunakan bahasa yang tidak formal"
+    },
+    "jawaban": "B",
+    "penjelasan": "Melakukan pelatihan rutin untuk staf membantu memastikan bahwa mereka dapat memberikan layanan yang konsisten dan berkualitas tinggi sesuai dengan prinsip pelayanan prima."
+  },
+  {
+    "nomor": 47,
+    "pertanyaan": "Ketika menghadapi keluhan pelanggan, penting untuk?",
+    "pilihan": {
+      "A": "Menghindari kontak langsung dengan pelanggan",
+      "B": "Mengambil tanggung jawab atas masalah yang dihadapi",
+      "C": "Menyalahkan pihak lain atas kesalahan",
+      "D": "Menunda penyelesaian keluhan",
+      "E": "Mengabaikan perasaan pelanggan"
+    },
+    "jawaban": "B",
+    "penjelasan": "Mengambil tanggung jawab atas masalah yang dihadapi menunjukkan profesionalisme dan komitmen untuk menyelesaikan keluhan dengan cara yang memuaskan."
+  },
+  {
+    "nomor": 48,
+    "pertanyaan": "Untuk mengukur kepuasan pelanggan, perusahaan sering menggunakan?",
+    "pilihan": {
+      "A": "Jumlah iklan yang ditayangkan",
+      "B": "Survei kepuasan pelanggan",
+      "C": "Tingkat penjualan produk",
+      "D": "Jumlah produk yang dikembalikan",
+      "E": "Lokasi toko"
+    },
+    "jawaban": "B",
+    "penjelasan": "Survei kepuasan pelanggan adalah alat yang umum digunakan untuk mengukur seberapa puas pelanggan dengan produk dan layanan yang diterima."
+  },
+  {
+    "nomor": 49,
+    "pertanyaan": "Dalam layanan pelanggan, pendekatan proaktif berarti?",
+    "pilihan": {
+      "A": "Menunggu pelanggan menghubungi untuk menyelesaikan masalah",
+      "B": "Mencari masalah sebelum pelanggan mengeluh dan menawarkan solusi",
+      "C": "Mengabaikan keluhan yang tidak langsung disampaikan",
+      "D": "Mengurangi interaksi dengan pelanggan",
+      "E": "Hanya menangani masalah jika pelanggan sangat marah"
+    },
+    "jawaban": "B",
+    "penjelasan": "Pendekatan proaktif melibatkan mencari potensi masalah sebelum pelanggan mengeluh dan menawarkan solusi untuk meningkatkan pengalaman pelanggan."
+  },
+  {
+    "nomor": 50,
+    "pertanyaan": "Salah satu cara untuk meningkatkan prinsip pelayanan prima adalah dengan?",
+    "pilihan": {
+      "A": "Mengurangi jumlah kontak dengan pelanggan",
+      "B": "Meningkatkan waktu tanggap terhadap permintaan pelanggan",
+      "C": "Menyederhanakan prosedur tanpa memperhatikan kebutuhan pelanggan",
+      "D": "Mengabaikan permintaan khusus pelanggan",
+      "E": "Mengurangi kualitas produk untuk menghemat biaya"
+    },
+    "jawaban": "B",
+    "penjelasan": "Meningkatkan waktu tanggap terhadap permintaan pelanggan membantu memberikan layanan yang cepat dan efisien, yang merupakan bagian dari prinsip pelayanan prima."
+  }
+];
+        
+        // Shuffle and select 50 questions
+        const shuffledQuestions = [...allQuestions].sort(() => 0.5 - Math.random());
+        const selectedQuestions = shuffledQuestions.slice(0, 50);
+        
+        // State variables
+        let currentQuestionIndex = 0;
+        let answers = Array(selectedQuestions.length).fill(null);
+        let timeLeft = 115 * 60; // 115 minutes in seconds
+        let timerInterval;
+        
+        // DOM elements
+        const startScreen = document.getElementById('start-screen');
+        const startBtn = document.getElementById('start-btn');
+        const examHeader = document.getElementById('exam-header');
+        const finishBtnContainer = document.getElementById('finish-btn-container');
+        const finishExamBtn = document.getElementById('finish-exam-btn');
+        const examContainer = document.getElementById('exam-container');
+        const resultContainer = document.getElementById('result-container');
+        const questionNumberElement = document.getElementById('question-number');
+        const questionTextElement = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const timerElement = document.getElementById('timer');
+        const progressElement = document.getElementById('progress');
+        const progressTextElement = document.getElementById('progress-text');
+        const questionIndicator = document.getElementById('question-indicator');
+        const resultScoreElement = document.getElementById('result-score');
+        const resultMessageElement = document.getElementById('result-message');
+        const reviewBtn = document.getElementById('review-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const reviewSection = document.getElementById('review-section');
+        const reviewQuestionsContainer = document.getElementById('review-questions-container');
+        
+        // Start the exam when start button is clicked
+        startBtn.addEventListener('click', startExam);
+        
+        // Initialize the exam
+        function startExam() {
+            // Hide start screen
+            startScreen.style.display = 'none';
+            
+            // Show exam elements
+            examHeader.style.display = 'block';
+            examContainer.style.display = 'block';
+            
+            // Create question indicators
+            createQuestionIndicators();
+            
+            // Start timer
+            startTimer();
+            
+            // Load first question
+            loadQuestion(currentQuestionIndex);
+            
+            // Update progress
+            updateProgress();
+        }
+        
+        // Create question indicator dots
+        function createQuestionIndicators() {
+            questionIndicator.innerHTML = '';
+            selectedQuestions.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = 'indicator-dot';
+                dot.dataset.index = index;
+                dot.addEventListener('click', () => {
+                    currentQuestionIndex = index;
+                    loadQuestion(currentQuestionIndex);
+                });
+                questionIndicator.appendChild(dot);
+            });
+            updateQuestionIndicators();
+        }
+        
+        // Update question indicators
+        function updateQuestionIndicators() {
+            const dots = document.querySelectorAll('.indicator-dot');
+            dots.forEach((dot, index) => {
+                dot.classList.remove('answered', 'current');
+                if (answers[index] !== null) {
+                    dot.classList.add('answered');
+                }
+                if (index === currentQuestionIndex) {
+                    dot.classList.add('current');
+                }
+            });
+            
+            // Show finish button if at least 10 questions are answered
+            const answeredCount = answers.filter(answer => answer !== null).length;
+            if (answeredCount >= 10) {
+                finishBtnContainer.style.display = 'block';
+            } else {
+                finishBtnContainer.style.display = 'none';
+            }
+        }
+        
+        // Load a question
+        function loadQuestion(index) {
+            const question = selectedQuestions[index];
+            
+            // Update question number and text
+            questionNumberElement.textContent = index + 1;
+            questionTextElement.textContent = question.pertanyaan;
+            
+            // Clear options
+            optionsContainer.innerHTML = '';
+            
+            // Add options
+            for (const [key, value] of Object.entries(question.pilihan)) {
+                const option = document.createElement('div');
+                option.className = 'option';
+                if (answers[index] === key) {
+                    option.classList.add('selected');
+                }
+                option.dataset.option = key;
+                
+                const optionLetter = document.createElement('div');
+                optionLetter.className = 'option-letter';
+                optionLetter.textContent = key;
+                
+                const optionText = document.createElement('div');
+                optionText.className = 'option-text';
+                optionText.textContent = value;
+                
+                option.appendChild(optionLetter);
+                option.appendChild(optionText);
+                
+                option.addEventListener('click', () => selectOption(key));
+                
+                optionsContainer.appendChild(option);
+            }
+            
+            // Update navigation buttons
+            prevBtn.disabled = index === 0;
+            nextBtn.textContent = index === selectedQuestions.length - 1 ? 'Selesai' : 'Berikutnya';
+            
+            // Add fade-in animation
+            examContainer.classList.remove('fade-in');
+            void examContainer.offsetWidth; // Trigger reflow
+            examContainer.classList.add('fade-in');
+            
+            // Update question indicators
+            updateQuestionIndicators();
+        }
+        
+        // Select an option
+        function selectOption(option) {
+            // Remove selected class from all options
+            document.querySelectorAll('.option').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked option
+            const selectedOption = document.querySelector(`.option[data-option="${option}"]`);
+            if (selectedOption) {
+                selectedOption.classList.add('selected');
+            }
+            
+            // Save answer
+            answers[currentQuestionIndex] = option;
+            
+            // Update progress
+            updateProgress();
+            
+            // Update question indicators
+            updateQuestionIndicators();
+        }
+        
+        // Update progress bar and text
+        function updateProgress() {
+            const answeredCount = answers.filter(answer => answer !== null).length;
+            const progressPercentage = (answeredCount / selectedQuestions.length) * 100;
+            
+            progressElement.style.width = `${progressPercentage}%`;
+            progressTextElement.textContent = `${answeredCount}/${selectedQuestions.length}`;
+        }
+        
+        // Navigate to previous question
+        prevBtn.addEventListener('click', () => {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion(currentQuestionIndex);
+            }
+        });
+        
+        // Navigate to next question or finish exam
+        nextBtn.addEventListener('click', () => {
+            if (currentQuestionIndex < selectedQuestions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion(currentQuestionIndex);
+            } else {
+                finishExam();
+            }
+        });
+        
+        // Finish exam when finish button is clicked
+        finishExamBtn.addEventListener('click', finishExam);
+        
+        // Finish exam and show results
+        function finishExam() {
+            clearInterval(timerInterval);
+            
+            // Hide exam elements
+            examHeader.style.display = 'none';
+            examContainer.style.display = 'none';
+            finishBtnContainer.style.display = 'none';
+            
+            // Calculate score with the new scoring system
+            let score = 0;
+            selectedQuestions.forEach((question, index) => {
+                if (answers[index] === question.jawaban) {
+                    score += 5; // 5 points for correct answer
+                } else if (answers[index] !== null) {
+                    score += 1; // 1 point for wrong answer
+                }
+                // 0 points for unanswered questions
+            });
+            
+            // Show result container
+            resultContainer.style.display = 'block';
+            
+            // Update result display
+            resultScoreElement.textContent = `${score}/${selectedQuestions.length * 5}`;
+            
+            // Add message based on score
+            const percentage = (score / (selectedQuestions.length * 5)) * 100;
+            let message = '';
+            
+            if (percentage >= 80) {
+                message = 'Sangat Baik! Anda memiliki pemahaman yang sangat baik tentang manajemen perkantoran.';
+            } else if (percentage >= 60) {
+                message = 'Bagus! Anda memiliki pemahaman yang baik tentang manajemen perkantoran.';
+            } else if (percentage >= 40) {
+                message = 'Cukup. Anda mungkin perlu mempelajari beberapa konsep lagi.';
+            } else {
+                message = 'Anda perlu mempelajari lebih banyak tentang manajemen perkantoran.';
+            }
+            
+            resultMessageElement.textContent = message;
+        }
+        
+        // Review answers
+        reviewBtn.addEventListener('click', () => {
+            if (reviewSection.style.display === 'block') {
+                reviewSection.style.display = 'none';
+                reviewBtn.textContent = 'Lihat Jawaban';
+            } else {
+                showAllAnswers();
+                reviewSection.style.display = 'block';
+                reviewBtn.textContent = 'Sembunyikan Jawaban';
+            }
+        });
+        
+        // Show all answers with explanations
+        function showAllAnswers() {
+            reviewQuestionsContainer.innerHTML = '';
+            
+            selectedQuestions.forEach((question, index) => {
+                const reviewItem = document.createElement('div');
+                reviewItem.className = 'review-item';
+                
+                const reviewQuestion = document.createElement('div');
+                reviewQuestion.className = 'review-question';
+                reviewQuestion.textContent = `${index + 1}. ${question.pertanyaan}`;
+                
+                const userAnswer = answers[index];
+                const correctAnswer = question.jawaban;
+                
+                const reviewAnswer = document.createElement('div');
+                
+                if (userAnswer === null) {
+                    reviewAnswer.className = 'review-answer unanswered';
+                    reviewAnswer.textContent = `Anda tidak menjawab (0 poin) - Jawaban benar: ${correctAnswer}`;
+                } else if (userAnswer === correctAnswer) {
+                    reviewAnswer.className = 'review-answer correct';
+                    reviewAnswer.textContent = `Jawaban Anda: ${userAnswer} (5 poin) - Benar!`;
+                } else {
+                    reviewAnswer.className = 'review-answer incorrect';
+                    reviewAnswer.textContent = `Jawaban Anda: ${userAnswer} (1 poin) - Jawaban benar: ${correctAnswer}`;
+                }
+                
+                const reviewExplanation = document.createElement('div');
+                reviewExplanation.className = 'review-explanation';
+                reviewExplanation.textContent = question.penjelasan;
+                
+                reviewItem.appendChild(reviewQuestion);
+                reviewItem.appendChild(reviewAnswer);
+                reviewItem.appendChild(reviewExplanation);
+                
+                reviewQuestionsContainer.appendChild(reviewItem);
+            });
+        }
+        
+        // Restart exam
+        restartBtn.addEventListener('click', restartExam);
+        
+        function restartExam() {
+            // Reset state
+            currentQuestionIndex = 0;
+            answers = Array(selectedQuestions.length).fill(null);
+            timeLeft = 115 * 60;
+            
+            // Hide result container and review section
+            resultContainer.style.display = 'none';
+            reviewSection.style.display = 'none';
+            reviewBtn.textContent = 'Lihat Jawaban';
+            
+            // Show start screen
+            startScreen.style.display = 'block';
+            
+            // Reset timer display if it was running
+            clearInterval(timerInterval);
+            updateTimerDisplay();
+        }
+        
+        // Start timer
+        function startTimer() {
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishExam();
+                }
+            }, 1000);
+        }
+        
+        // Update timer display
+        function updateTimerDisplay() {
+            const hours = Math.floor(timeLeft / 3600);
+            const minutes = Math.floor((timeLeft % 3600) / 60);
+            const seconds = timeLeft % 60;
+            
+            timerElement.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Change color when time is running out
+            if (timeLeft <= 300) { // 5 minutes left
+                timerElement.style.color = 'var(--danger)';
+            }
+        }
+    </script>
+</body>
+</html>
